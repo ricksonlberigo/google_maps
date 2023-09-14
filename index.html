@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mostrar Marcadores e Rotas no Google Maps</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtTXMl2vgXolFFkqrwNbb1jHjA90JtSOE"></script>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 400px"></div>
+    <button onclick="showRoute(1)">Ver Rota para Endereço 1</button>
+    <button onclick="showRoute(2)">Ver Rota para Endereço 2</button>
+    <script>
+      var map
+      var markers = []
+
+      // Coordenadas dos endereços
+      var address1 = { lat: -19.725023987868703, lng: -50.19441532225335 } // Endereço 1
+      var address2 = { lat: -19.725521437999458, lng: -50.198307110650596 } // Endereço 2
+
+      // Inicialize o mapa
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: -19.7276, lng: -50.1959 }, // Coordenadas do centro do mapa
+          zoom: 14, // Zoom inicial
+        })
+
+        // Adicione marcadores para os endereços
+        addMarker(address1, 'Endereço 1')
+        addMarker(address2, 'Endereço 2')
+      }
+
+      // Adicione um marcador nas coordenadas fornecidas
+      function addMarker(location, title) {
+        var marker = new google.maps.Marker({
+          position: location,
+          map: map,
+          title: title,
+        })
+        markers.push(marker)
+      }
+
+      // Abra o Google Maps com a rota para um endereço
+      function showRoute(addressNumber) {
+        var destination
+
+        if (addressNumber === 1) {
+          destination = address1
+        } else if (addressNumber === 2) {
+          destination = address2
+        }
+
+        var url =
+          'https://www.google.com/maps/dir/?api=1&destination=' +
+          destination.lat +
+          ',' +
+          destination.lng
+        window.open(url, '_blank')
+      }
+    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtTXMl2vgXolFFkqrwNbb1jHjA90JtSOE&callback=initMap"
+    ></script>
+  </body>
+</html>
