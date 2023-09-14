@@ -23,18 +23,32 @@
       var map
       var markers = []
 
-      // Coordenadas dos endereços
-      var address1 = {
-        lat: -19.725023987868703,
-        lng: -50.19441532225335,
-        name: 'Endereço 1',
+      var enderecosDoBancoDeDados = [
+        {
+          cidade: 'Iturama',
+          cep: '38280-000',
+          endereco: 'Avenida Alexandrita, 1863',
+        },
+        {
+          cidade: 'Iturama',
+          cep: '38280-000',
+          endereco: 'R. Frutal, 532',
+        },
+      ]
+
+      // Função para geocodificar um endereço usando a API de Geocodificação do Google Maps
+      function geocodeAddress(address, callback) {
+        var geocoder = new google.maps.Geocoder()
+        geocoder.geocode({ address: address }, function (results, status) {
+          if (status === 'OK' && results[0]) {
+            var location = results[0].geometry.location
+            callback(location)
+          } else {
+            console.error('Geocodificação falhou: ' + status)
+            callback(null)
+          }
+        })
       }
-      var address2 = {
-        lat: -19.725521437999458,
-        lng: -50.198307110650596,
-        name: 'Endereço 2',
-      }
-      // Adicione mais endereços aqui
 
       // Inicialize o mapa
       function initMap() {
@@ -43,39 +57,39 @@
           zoom: 14, // Zoom inicial
         })
 
-        // Adicione marcadores para os endereços
-        addMarker(address1)
-        addMarker(address2)
-      }
-
-      // Adicione um marcador nas coordenadas fornecidas
-      function addMarker(locationData) {
-        var marker = new google.maps.Marker({
-          position: locationData,
-          map: map,
-          title: locationData.name,
-        })
-
-        markers.push(marker)
-
-        // Adicione um ouvinte de evento de clique ao marcador
-        marker.addListener('click', function () {
-          openInfoWindow(marker)
+        // Adicione marcadores para os endereços do banco de dados
+        enderecosDoBancoDeDados.forEach(function (endereco) {
+          var enderecoCompleto =
+            endereco.cidade + ', ' + endereco.cep + ', ' + endereco.endereco
+          geocodeAddress(enderecoCompleto, function (location) {
+            if (location) {
+              var marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                title: enderecoCompleto,
+              })
+            }
+            markers.push(marker)
+            // Adicione um ouvinte de evento de clique ao marcador
+            marker.addListener('click', function () {
+              openInfoWindow(marker)
+            })
+          })
         })
       }
 
       // Abra a janela pop-up com a opção "Ir até a rota"
       function openInfoWindow(marker) {
         var infoWindowContent = `
-                    <div class="info-window">
-                        <h3>${marker.getTitle()}</h3>
-                        <button id="buttonMap" onclick="openGoogleMapsRoute('${marker
-                          .getPosition()
-                          .lat()}', '${marker
+                      <div class="info-window">
+                          <h3>${marker.getTitle()}</h3>
+                          <button id="buttonMap" onclick="openGoogleMapsRoute('${marker
+                            .getPosition()
+                            .lat()}', '${marker
           .getPosition()
           .lng()}')">Ir até a rota</button>
-                    </div>
-                `
+                      </div>
+                  `
 
         var infoWindow = new google.maps.InfoWindow({
           content: infoWindowContent,
