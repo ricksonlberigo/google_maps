@@ -2,19 +2,39 @@
 <html>
   <head>
     <title>Mostrar Marcadores e Rotas no Google Maps</title>
+    <style>
+      /* Estilos para a janela pop-up */
+      .info-window {
+        background-color: white;
+
+        padding: 10px;
+        width: 200px;
+        text-align: center;
+      }
+      #buttonMap {
+        border: 1px solid #ccc;
+      }
+    </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtTXMl2vgXolFFkqrwNbb1jHjA90JtSOE"></script>
   </head>
   <body>
     <div id="map" style="width: 100%; height: 400px"></div>
-    <button onclick="showRoute(1)">Ver Rota para Endereço 1</button>
-    <button onclick="showRoute(2)">Ver Rota para Endereço 2</button>
     <script>
       var map
       var markers = []
 
       // Coordenadas dos endereços
-      var address1 = { lat: -19.725023987868703, lng: -50.19441532225335 } // Endereço 1
-      var address2 = { lat: -19.725521437999458, lng: -50.198307110650596 } // Endereço 2
+      var address1 = {
+        lat: -19.725023987868703,
+        lng: -50.19441532225335,
+        name: 'Endereço 1',
+      }
+      var address2 = {
+        lat: -19.725521437999458,
+        lng: -50.198307110650596,
+        name: 'Endereço 2',
+      }
+      // Adicione mais endereços aqui
 
       // Inicialize o mapa
       function initMap() {
@@ -24,35 +44,53 @@
         })
 
         // Adicione marcadores para os endereços
-        addMarker(address1, 'Endereço 1')
-        addMarker(address2, 'Endereço 2')
+        addMarker(address1)
+        addMarker(address2)
       }
 
       // Adicione um marcador nas coordenadas fornecidas
-      function addMarker(location, title) {
+      function addMarker(locationData) {
         var marker = new google.maps.Marker({
-          position: location,
+          position: locationData,
           map: map,
-          title: title,
+          title: locationData.name,
         })
+
         markers.push(marker)
+
+        // Adicione um ouvinte de evento de clique ao marcador
+        marker.addListener('click', function () {
+          openInfoWindow(marker)
+        })
       }
 
-      // Abra o Google Maps com a rota para um endereço
-      function showRoute(addressNumber) {
-        var destination
+      // Abra a janela pop-up com a opção "Ir até a rota"
+      function openInfoWindow(marker) {
+        var infoWindowContent = `
+                    <div class="info-window">
+                        <h3>${marker.getTitle()}</h3>
+                        <button id="buttonMap" onclick="openGoogleMapsRoute('${marker
+                          .getPosition()
+                          .lat()}', '${marker
+          .getPosition()
+          .lng()}')">Ir até a rota</button>
+                    </div>
+                `
 
-        if (addressNumber === 1) {
-          destination = address1
-        } else if (addressNumber === 2) {
-          destination = address2
-        }
+        var infoWindow = new google.maps.InfoWindow({
+          content: infoWindowContent,
+        })
 
+        infoWindow.open(map, marker)
+      }
+
+      // Abra o Google Maps com a rota até o endereço
+      function openGoogleMapsRoute(latitude, longitude) {
         var url =
           'https://www.google.com/maps/dir/?api=1&destination=' +
-          destination.lat +
+          latitude +
           ',' +
-          destination.lng
+          longitude
         window.open(url, '_blank')
       }
     </script>
